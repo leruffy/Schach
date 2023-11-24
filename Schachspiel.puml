@@ -1,0 +1,80 @@
+@startuml
+left to right direction
+class Läufer {
++ String getFarbe()
++ void setFarbe(String)
++ char getUnicodeFigur()
++ void setUnicodeFigur(char)
++ boolean isErlaubterZug(int veränderungX,int veränderungY)
+}
+class Dame {
++ String getFarbe()
++ void setFarbe(String)
++ char getUnicodeFigur()
++ void setUnicodeFigur(char)
++ boolean isErlaubterZug(int veränderungX,int veränderungY)
+}
+class Turm {
++ String getFarbe()
++ void setFarbe(String)
++ char getUnicodeFigur()
++ void setUnicodeFigur(char)
++ boolean isErlaubterZug(int veränderungX,int veränderungY)
+}
+class Springer {
++ String getFarbe()
++ void setFarbe(String)
++ char getUnicodeFigur()
++ void setUnicodeFigur(char)
++ boolean isErlaubterZug(int veränderungX,int veränderungY)
+}
+class König {
++ String getFarbe()
++ void setFarbe(String)
++ char getUnicodeFigur()
++ void setUnicodeFigur(char)
++ boolean isErlaubterZug(int veränderungX,int veränderungY)
+}
+class Schachbrett {
+- String[][] brett
+- boolean spielerWeiß
+- String hell
+- String dunkel
++ String[][] getBrett()
++ void setBrett(String[][])
++ boolean getSpielerWeiß()
++ void setSpielerWeiß(boolean)
++ String getHell()
++ void setHell(char)
++ String getDunkel()
++ void setDunkel(char)
++ void brettAufstellen()
++ void darstellen(boolean)
++ boolean isWegFrei(int startZ, int startS, int zielZ, int zielS)
+}
+class Bauer {
+~ Schachbrett brett
++ String getFarbe()
++ void setFarbe(String)
++ char getUnicodeFigur()
++ void setUnicodeFigur(char)
++ boolean isErlaubterZug(String[][] arr, int startZeile, int startSpalte, int zielZeile, int zielSpalte, int veränderungX, int veränderungY)
+}
+
+class Figur {
+- String farbe
+- char unicodeFigur
++ String getFarbe()
++ void setFarbe(String)
++ char getUnicodeFigur()
++ void setUnicodeFigur(char)
+}
+
+
+Figur <|-- Läufer
+Figur <|-- Dame
+Figur <|-- Turm
+Figur <|-- Springer
+Figur <|-- König
+Figur <|-- Bauer
+@enduml
