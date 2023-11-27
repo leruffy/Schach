@@ -10,24 +10,26 @@ public class Main {
     static int zugNr = 0;
 
     // Objekte für die Schwarzen figuren
-    static Bauer bauerS = new Bauer("schwarz", (char) 9823);
-    static Dame dameS = new Dame("schwarz", (char) 9819);
     static König königS = new König("schwarz", (char) 9818);
+    static Dame dameS = new Dame("schwarz", (char) 9819);
+    static Turm turmS = new Turm("schwarz", (char) 9820);
     static Läufer läuferS = new Läufer("schwarz", (char) 9821);
     static Springer springerS = new Springer("schwarz", (char) 9822);
-    static Turm turmS = new Turm("schwarz", (char) 9820);
+
+    static Bauer bauerS = new Bauer("schwarz", (char) 9823);
 
     // Objekte für die weißen figuren
-    static Bauer bauerW = new Bauer("weiß", (char) 9817);
-    static Dame dameW = new Dame("weiß", (char) 9813);
     static König königW = new König("weiß", (char) 9812);
+    static Dame dameW = new Dame("weiß", (char) 9813);
+    static Turm turmW = new Turm("weiß", (char) 9814);
     static Läufer läuferW = new Läufer("weiß", (char) 9815);
     static Springer springerW = new Springer("weiß", (char) 9816);
-    static Turm turmW = new Turm("weiß", (char) 9814);
+    static Bauer bauerW = new Bauer("weiß", (char) 9817);
 
     static Figur[] blackPieces = {turmS, springerS, läuferS, dameS, königS, läuferS, springerS, turmS};
     static Figur[] whitePieces = {turmW, springerW, läuferW, dameW, königW, läuferW, springerW, turmW};
 
+    // Stellt die Figuren in Grundstellung auf das Schachbrett
     public static void grundstellung(String[][] arr) {
         for (int zeile = 1; zeile < arr.length - 1; zeile++) {
             for (int spalte = 1; spalte < arr.length - 1; spalte++) {
@@ -44,9 +46,10 @@ public class Main {
     static void ziehen(String userName) throws IOException {
         Scanner sc = new Scanner(System.in);
         System.out.println("Spieler " + brett.getSpieler() + " bitte waehle deinen Zug");
-        String zug = sc.nextLine();
-        if (zug.startsWith("admin:")){
-            zug = zug.toUpperCase();
+        String zug = sc.nextLine().toUpperCase();
+
+        // Vorübergehende funktion um die Zugregeln zu umgehen zum leichteren Testen
+        if (zug.startsWith("ADMIN:")){
 
             int startSpalte = zug.charAt(6) - 64;
             int startZeile = 9 - Integer.parseInt(String.valueOf(zug.charAt(7)));
@@ -59,11 +62,12 @@ public class Main {
             brett.darstellen(brett.getBoardOrientation());
             return;
         }
-        zug = zug.toUpperCase();
+        // Aktuelles Spiel wird gespeichert und anschließend beendet
         if (zug.contains("SPEICHERN")) {
             brett.saveGame(userName);
             System.exit(0);
         }
+        // Funktion zum Berechnen aller erlaubten Züge wird in Zukunft geändert, dass es automatisch bei jedem Zug angezeigt wird
         if (zug.contains("PRINT")){
             figur.getAllAllowedMoves().clear();
             for(Map.Entry<String, ArrayList<String>> entry : springerS.generateAllowedMoves(brett).entrySet()){
@@ -97,7 +101,7 @@ public class Main {
             System.out.println("Bitte bewege deine eigene Figur");
             return;
         }
-
+        // Zur bestimmung in welche Richtung eine Figur läuft
         int veränderungY = startZeile - zielZeile;
         int veränderungX = startSpalte - zielSpalte;
 
@@ -129,20 +133,21 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         Scanner scStr = new Scanner(System.in);
+        // Für den Fall, dass entweder ein Spiel gespeichert werden soll oder bereits ein gespeichertes Spiel vorhanden ist
         System.out.println("Bitte gib deinen Benutzernamen ein");
         String userName = scStr.nextLine().strip();
         Spieler spieler = new Spieler(userName);
         boolean loadSuccessful = true;
         if (spieler.searchUserName()) { // Schaue, ob unter dem Benutzernamen schon ein save file vorhanden ist
+            // User wird gefragt, ob er ein Spiel laden will, wenn nein wird loadSuccessful auf False gesetzt
             loadSuccessful = brett.loadGame(userName);
-            brett.setBrett(brett.getBrett());
-        }else {
+        }else { // Kein save file vorhanden und neues Spiel wird gestartet
             brett.brettBefüllen();
             grundstellung(brett.getBrett());
             brett.darstellen(brett.getBoardOrientation());
             brett.setBrett(brett.getBrett());
         }
-        if (!loadSuccessful){
+        if (!loadSuccessful){ // User hat das laden abgebrochen und ein neues Spiel wird gestartet
             brett.brettBefüllen();
             grundstellung(brett.getBrett());
             brett.darstellen(brett.getBoardOrientation());

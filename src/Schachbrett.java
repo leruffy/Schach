@@ -5,7 +5,8 @@ import java.util.Scanner;
 
 public class Schachbrett {
     private String[][] brett = new String[10][10];
-    private boolean boardOrientation = true;
+    private boolean boardOrientation = true; // True wenn weiß am Zug ist
+    // Für die leeren felder des Schachbrettes der Unicode 8202 ist ein Whitespace char zur passenden formatierung bei der Ausgabe auf die Konsole
     private final String hell = ((char) 9724 + "" + (char) (8202));
     private final String dunkel = ((char) 9723 + "" + (char) (8202));
 
@@ -56,6 +57,7 @@ public class Schachbrett {
         brett[zeile][spalte] = piece;
     }
 
+    // Gibt das Brett passend für den jeweiligen Spieler der am Zug ist, auf die Konsole aus
     public void darstellen(boolean richtung) {
         for (int zeile = 0; zeile < brett.length; zeile++) {
             for (int spalte = 0; spalte < brett.length; spalte++) {
@@ -73,30 +75,37 @@ public class Schachbrett {
 
     public boolean isWegFrei(int startZ, int startS, int zielZ, int zielS) {
         boolean wegFrei = true;
+        // Zielangabe nicht auf dem Brett
         if (zielZ<1 ||zielZ > 8 || zielS<1 ||zielS > 8){
             return false;
         }
         try {
             int x = startZ;
             int y = startS;
+            // Figur führt einen Diagonalen Zug aus
             if (startZ != zielZ && startS != zielS) {
                 while (x != zielZ && y != zielS) {
                     x = (startZ >= zielZ) ? x - 1 : x + 1;
                     y = (startS >= zielS) ? y - 1 : y + 1;
                     if (brett[startZ][startS].charAt(0) >= 9818 && !(brett[x][y].equals(hell)) && !(brett[x][y].equals(dunkel))) { // Schwarze Figur wird bewegt
+                        // Spieler schwarz versucht seine Figur auf ein Feld zu setzen auf dem schon eine Schwarze Figur steht
                         if (brett[x][y].charAt(0) >= 9818) {
                             wegFrei = false;
+                            // Spieler schwarz versucht eine Weiße Figur zu überspringen
                         } else if (x != zielZ && y != zielS) {
                             wegFrei = false;
                         }
                     } else if (brett[startZ][startS].charAt(0) <= 9817 && !(brett[startZ][startS].equals(hell)) && !(brett[x][y].equals(dunkel))) { // Weiße Figur wird bewegt
+                        // Spieler weiß versucht seine Figur auf ein Feld zu setzen auf dem schon eine Weiße Figur steht
                         if (brett[x][y].charAt(0) <= 9817) {
                             wegFrei = false;
+                            // Spieler weiß versucht eine Schwarze Figur zu überspringen
                         } else if (x != zielZ && y != zielS) {
                             wegFrei = false;
                         }
                     }
                 }
+                // Horizontaler/Vertikaler Zug
             } else {
                 while (x != zielZ || y != zielS) {
                     if (x > zielZ) {
@@ -109,16 +118,20 @@ public class Schachbrett {
                     } else if (y < zielS && y != 0) {
                         y++;
                     }
-
+                    // startZ und startS stehen für die Figur die bewegt wird und x sowie y stehen für das Feld auf dem Schachbrett welches gerade geprüft wird
                     if (brett[startZ][startS].charAt(0) >= 9818 && !(brett[x][y].equals(hell)) && !(brett[x][y].equals(dunkel))) { // Schwarze Figur wird bewegt
+                        // Spieler schwarz versucht seine Figur auf ein Feld zu setzen auf dem schon eine Schwarze Figur steht
                         if (brett[x][y].charAt(0) >= 9818) {
                             wegFrei = false;
+                            // Spieler schwarz versucht eine Weiße Figur zu überspringen
                         } else if (x != zielZ || y != zielS) {
                             wegFrei = false;
                         }
                     } else if (brett[startZ][startS].charAt(0) <= 9817 && !(brett[x][y].equals(hell)) && !(brett[x][y].equals(dunkel))) { // Weiße Figur wird bewegt
+                        // Spieler weiß versucht seine Figur auf ein Feld zu setzen auf dem schon eine Weiße Figur steht
                         if (brett[x][y].charAt(0) <= 9817) {
                             wegFrei = false;
+                            // Spieler weiß versucht eine Schwarze Figur zu überspringen
                         } else if (x != zielZ || y != zielS) {
                             wegFrei = false;
                         }
@@ -131,11 +144,13 @@ public class Schachbrett {
     }
 
     public void saveGame(String userName) throws IOException {
+        // Zum Hinzufügen des aktuellen Zeitstempels zum Benutzernamen
         long time = System.currentTimeMillis();
         FileWriter writer = new FileWriter("./saveFiles/" + userName + time + ".txt");
         PrintWriter printWriter = new PrintWriter(writer);
         for (int spalte = 1; spalte < brett.length - 1; spalte++) {
             for (int zeile = 1; zeile < brett.length - 1; zeile++) {
+                // Schreibt den Inhalt von jedem Feld in eine neue Zeile einer Textdatei
                 printWriter.append(brett[spalte][zeile]).append("\n");
             }
         }
@@ -144,34 +159,29 @@ public class Schachbrett {
     }
 
     public boolean loadGame(String userName) throws IOException {
+        // Wird auf False gesetzt, falls der User das Laden mittendrin abbricht, damit in der main Methode dann ein neues Spiel gestartet wird
         boolean loadSuccessful = true;
         List<String> saveFiles = new ArrayList<>();
         Scanner scInt = new Scanner(System.in);
         Scanner scStr = new Scanner(System.in);
         System.out.println("Es sind bereits Spielstände mit deinem Benutzernamen vorhanden möchtest du einen davon laden?");
         String ladenJaNein = scStr.nextLine();
-        int z = 1;
-        if (ladenJaNein.equalsIgnoreCase("ja")) { // Benutzer möchte altes Spiel laden
-            File folder = new File("./saveFiles/");
-            File[] listOfFiles = folder.listFiles();
+        // Benutzer möchte altes Spiel laden
+        if (ladenJaNein.equalsIgnoreCase("ja")) {
+            Spieler spieler = new Spieler(userName);
+            saveFiles = spieler.listFiles();
 
-            if (listOfFiles != null) {
-                for (File listOfFile : listOfFiles) {
-                    if (listOfFile.isFile() && listOfFile.getName().contains(userName)) {
-                        saveFiles.add(listOfFile.getName());
-                        System.out.println(z + " " + listOfFile.getName());
-                        z++;
-                    }
-                }
-            }
             System.out.println("Bitte wähle die Nummer des zu ladenden Spielstandes oder 0 um doch ein neues Spiel zu starten");
             int saveFileToLoad = scInt.nextInt();
             if (saveFileToLoad != 0) {
+                // Brett wird mit leeren Feldern befüllt
                 brettBefüllen();
+                // Zum Auslesen der gewählten Datei
                 BufferedReader br = new BufferedReader(new FileReader("./saveFiles/" + saveFiles.get(saveFileToLoad - 1)));
                 for (int i = 1; i < brett.length - 1; i++) {
                     for (int j = 1; j < brett.length - 1; j++) {
                         String line = br.readLine();
+                        // Zeile entspricht einer Figur
                         if (line.charAt(0) >= 9812 && line.charAt(0) <= 9823) {
                             brett[i][j] = String.valueOf(line.charAt(0));
                         } else {
@@ -179,9 +189,12 @@ public class Schachbrett {
                         }
                     }
                 }
+                darstellen(boardOrientation);
             } else {
                 loadSuccessful = false;
             }
+        }else {
+            loadSuccessful = false;
         }
         return loadSuccessful;
     }
